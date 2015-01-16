@@ -104,6 +104,23 @@ var RemoteSelectField = React.createClass({
 	}
 });
 
+function go(cb, op)
+{
+	console.log("doing callback");
+	cb(op);
+}
+
+function testRender(filtered, onClick_callback, context) {
+	var listItems = filtered.map(function(item) {
+		return <li onClick={context.externalSelectValue.bind(context, item)}>{item.label}</li>
+	})
+	console.log(listItems);
+	return (
+		<ul>
+			{listItems}
+		</ul>
+	)
+}
 
 var MultiSelectField = React.createClass({
 	render: function() {
@@ -117,7 +134,7 @@ var MultiSelectField = React.createClass({
 		];
 		return <div>
 			<label>{this.props.label}</label>
-			<Select multi={true} placeholder="Select your favourite(s)" options={ops} onChange={logChange} />
+			<Select multi={true} placeholder="Select your favourite(s)" buildCustomMenu={testRender} options={ops} onChange={logChange} />
 		</div>;
 	}
 });
