@@ -476,14 +476,8 @@ var Select = React.createClass({
 		);
 		
 	},
-
-	externalSelectValue: function(option) {
-		console.log(this);
-		this.selectValue(option);
-	},
 	
 	render: function() {
-		
 		var selectClass = classes('Select', this.props.className, {
 			'is-multi': this.props.multi,
 			'is-open': this.state.isOpen,
@@ -507,10 +501,12 @@ var Select = React.createClass({
 		if (!this.state.inputValue && (!this.props.multi || !value.length)) {
 			value.push(<div className="Select-placeholder" key="placeholder">{this.state.placeholder}</div>);
 		}
-		
+
 		var loading = this.state.isLoading ? <span className="Select-loading" aria-hidden="true" /> : null;
 		var clear = this.props.clearable && this.state.value ? <span className="Select-clear" title={this.props.multi ? this.props.clearAllText : this.props.clearValueText} aria-label={this.props.multi ? this.props.clearAllText : this.props.clearValueText} onMouseDown={this.clearValue} onClick={this.clearValue} dangerouslySetInnerHTML={{ __html: '&times;' }} /> : null;
-		var menu = this.state.isOpen ? <div ref="menu" className="Select-menu">{this.props.buildCustomMenu ? this.props.buildCustomMenu(this.state.filteredOptions, this.externalSelectValue, this) : this.buildMenu()}</div> : null;
+		
+		var builtMenu = this.props.buildCustomMenu ? this.props.buildCustomMenu(this.selectValue, this.state.filteredOptions, this.state.focusedOption, this.focusOption, this.unfocusOption) : this.buildMenu();
+		var menu = this.state.isOpen ? <div ref="menu" className="Select-menu">{builtMenu}</div> : null;
 		
 		return (
 			<div ref="wrapper" className={selectClass}>

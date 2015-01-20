@@ -126,6 +126,49 @@ label {
 	margin-top: 15px;
 }
 
+// More List
+.ml-list {
+    list-style-type: none;
+    padding: 0px;
+    margin: 0px;
+}
+
+.ml-expander {
+    background-color: #DDD;
+    font-style: italic;
+    cursor: pointer;
+
+	&:hover {
+		background-color: #DDF;
+	}
+}
+
+.ml-count {
+    background-color: #BBB;
+    padding: 0px 5px;
+    border-radius: 1em;
+    font-style: normal;
+    font-size: 14px;
+    
+}
+
+.ml-list-item {
+	box-sizing: border-box;
+	color: @select-option-color;
+	cursor: pointer;
+	display: block;
+	padding: @select-padding-vertical @select-padding-horizontal;
+
+	&:last-child {
+		.border-bottom-radius( @select-input-border-radius );
+	}
+	
+	&.is-focused {
+		background-color: @select-option-focused-bg;
+		color: @select-option-focused-color;
+	}
+}
+
 
 // 
 // Select Control

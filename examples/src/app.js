@@ -1,5 +1,8 @@
 var React = require('react'),
-	Select = require('react-select');
+	Select = require('react-select'),
+	MoreList = require('../../../react-more-list/more-list.jsx');
+
+//require('./external/more-list-styles.css');
 
 var STATES = require('./data/states');
 
@@ -104,21 +107,34 @@ var RemoteSelectField = React.createClass({
 	}
 });
 
-function go(cb, op)
-{
-	console.log("doing callback");
-	cb(op);
+//Binding straight to callback throws a warning
+function mouseDownHandler(onMouseDown_callback, item) {
+	onMouseDown_callback(item);
 }
 
-function testRender(filtered, onClick_callback, context) {
+function mouseEnterHandler(onMouseEnter_callback, item) {
+	onMouseEnter_callback(item);
+}
+
+function mouseLeaveHandler(onMouseLeave_callback, item) {
+	onMouseLeave_callback(item);
+}
+
+function testRender(onMouseDown_callback, filtered, focussed, focus_callback, unfocus_callback) {
 	var listItems = filtered.map(function(item) {
-		return <li onClick={context.externalSelectValue.bind(context, item)}>{item.label}</li>
-	})
-	console.log(listItems);
+		var className = focussed && focussed.value === item.value ? "is-focused" : null;
+
+		var mouseDown = mouseDownHandler.bind(this, onMouseDown_callback, item);
+		var mouseEnter = mouseEnterHandler.bind(this, focus_callback, item);
+		var mouseLeave = mouseLeaveHandler.bind(this, unfocus_callback, item);
+
+		return <li className={className} onMouseDown={mouseDown} onMouseEnter={mouseEnter} onMouseLeave={mouseLeave}>{item.label}</li>
+	}, this)
+
 	return (
-		<ul>
+		<MoreList>
 			{listItems}
-		</ul>
+		</MoreList>
 	)
 }
 
@@ -130,7 +146,9 @@ var MultiSelectField = React.createClass({
 			{ label: 'Strawberry', value: 'strawberry' },
 			{ label: 'Caramel', value: 'caramel' },
 			{ label: 'Cookies and Cream', value: 'cookiescream' },
-			{ label: 'Peppermint', value: 'peppermint' }
+			{ label: 'Peppermint', value: 'peppermint' },
+			{ label: 'Rocky Road', value: 'rockyroad' },
+			{ label: 'Cookie Dough', value: 'cookiedough' }
 		];
 		return <div>
 			<label>{this.props.label}</label>
