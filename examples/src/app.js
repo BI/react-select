@@ -107,52 +107,90 @@ var RemoteSelectField = React.createClass({
 	}
 });
 
-//Binding straight to callback throws a warning
-function mouseDownHandler(onMouseDown_callback, item) {
-	onMouseDown_callback(item);
-}
+var CustomList = React.createClass({
+	mixins: [Select.CustomMenuMixin],
 
-function mouseEnterHandler(onMouseEnter_callback, item) {
-	onMouseEnter_callback(item);
-}
+  buildSections: function(itemMap) {
+  	var sections = itemMap.map(this.buildSection, this);
 
-function mouseLeaveHandler(onMouseLeave_callback, item) {
-	onMouseLeave_callback(item);
-}
+  	return section;
+  },
+  buildSection: function(sectionItems, sectionTitle) {
+  	var moreList = this.buildMoreList(sectionItems);
 
-function testRender(onMouseDown_callback, filtered, focussed, focus_callback, unfocus_callback) {
-	var listItems = filtered.map(function(item) {
-		var className = focussed && focussed.value === item.value ? "is-focused" : null;
+  	return (
+  		<Section>
+  			<Heading>{sectionTitle}</Heading>
+  			<Content>
+  				{moreList}
+  			</Content>
+  		</Section>
+  	)
+  },
+  buildMoreList: function(moreListItems) {
+		var listItems = moreListItems.map(this.buildListItem, this);
 
-		var mouseDown = mouseDownHandler.bind(this, onMouseDown_callback, item);
-		var mouseEnter = mouseEnterHandler.bind(this, focus_callback, item);
-		var mouseLeave = mouseLeaveHandler.bind(this, unfocus_callback, item);
+		return (
+			<MoreList>
+				{listItems}
+			</MoreList>
+		)
+  },
+  buildListItem: function(listItem) {
+			var className = this.props.focussedItem && this.props.focussedItem.value === listItem.value ? "is-focused" : null;
 
-		return <li className={className} onMouseDown={mouseDown} onMouseEnter={mouseEnter} onMouseLeave={mouseLeave}>{item.label}</li>
-	}, this)
+			var mouseDown = this.selectItem.bind(this, listItem);
+			var mouseEnter = this.focusItem.bind(this, listItem);
+			var mouseLeave = this.unfocusItem.bind(this, listItem);
 
-	return (
-		<MoreList>
-			{listItems}
-		</MoreList>
-	)
-}
+			return <li className={className} onMouseDown={mouseDown} onMouseEnter={mouseEnter} onMouseLeave={mouseLeave}>{listItem.innerLabel}</li>
+  },
+	render: function() {
+		var sectionMap = {};
+		
+		var sections = sectionMap.map(buildSections, this);
+
+		return (
+			<Accordion>
+				{sections}
+			</Accordion>
+		)
+	}
+});
 
 var MultiSelectField = React.createClass({
 	render: function() {
 		var ops = [
-			{ label: 'Chocolate', value: 'chocolate' },
-			{ label: 'Vanilla', value: 'vanilla' },
-			{ label: 'Strawberry', value: 'strawberry' },
-			{ label: 'Caramel', value: 'caramel' },
-			{ label: 'Cookies and Cream', value: 'cookiescream' },
-			{ label: 'Peppermint', value: 'peppermint' },
-			{ label: 'Rocky Road', value: 'rockyroad' },
-			{ label: 'Cookie Dough', value: 'cookiedough' }
+			{ label: 'Ice Cream: Chocolate', value: 'ic_chocolate', innerLabel: 'Chocolate', category: 'Ice Cream'},
+			{ label: 'Ice Cream: Vanilla', value: 'ic_vanilla', innerLabel: 'Vanilla', category: 'Ice Cream' },
+			{ label: 'Ice Cream: Strawberry', value: 'ic_strawberry', innerLabel: 'Strawberry', category: 'Ice Cream' },
+			{ label: 'Ice Cream: Caramel', value: 'ic_caramel', innerLabel: 'Caramel', category: 'Ice Cream' },
+			{ label: 'Ice Cream: Cookies and Cream', value: 'ic_cookiescream', innerLabel: 'Cookies and Cream', category: 'Ice Cream' },
+			{ label: 'Ice Cream: Peppermint', value: 'ic_peppermint', innerLabel: 'Peppermint', category: 'Ice Cream' },
+			{ label: 'Ice Cream: Rocky Road', value: 'ic_rockyroad', innerLabel: 'Rocky Road', category: 'Ice Cream' },
+			{ label: 'Ice Cream: Cookie Dough', value: 'ic_cookiedough', innerLabel: 'Cookie Dough', category: 'Ice Cream' },
+			{ label: 'Cake: Vanilla', value: 'c_vanilla', innerLabel: 'Vanilla', category: 'Cake' },
+			{ label: 'Cake: Chocolate', value: 'c_chocolate', innerLabel: 'Chocolate', category: 'Cake' },
+			{ label: 'Cake: Funfetti', value: 'c_funfetti', innerLabel: 'Funfetti', category: 'Cake' },
+			{ label: 'Cake: Marbled', value: 'c_marbled', innerLabel: 'Marbled', category: 'Cake' },
+			{ label: 'Cake: Red Velvet', value: 'c_redvelvet', innerLabel: 'Red Velvet', category: 'Cake' },
+			{ label: 'Cake: Devil\'s Food', value: 'c_devilsfood', innerLabel: 'Devil\'s Food', category: 'Cake' },
+			{ label: 'Cake: Angel', value: 'c_angel', innerLabel: 'Angel', category: 'Cake' },
+			{ label: 'Pie: Apple', value: 'p_apple', innerLabel: 'Apple', category: 'Pie' },
+			{ label: 'Pie: Cherry', value: 'p_cherry', innerLabel: 'Cherry', category: 'Pie' },
+			{ label: 'Pie: Chocolate', value: 'p_chocolate', innerLabel: 'Chocolate', category: 'Pie' },
+			{ label: 'Pie: Pumpkin', value: 'p_pumpkin', innerLabel: 'Pumpkin', category: 'Pie' },
+			{ label: 'Pie: Blueberry', value: 'p_blueberry', innerLabel: 'Blueberry', category: 'Pie' },
+			{ label: 'Pie: Blackberry', value: 'p_blackberry', innerLabel: 'Blackberry', category: 'Pie' },
+			{ label: 'Pie: Fruit', value: 'p_fruit', innerLabel: 'Fruit', category: 'Pie' },
+			{ label: 'Pie: Banana Cream', value: 'p_bananacream', innerLabel: 'Banana Cream', category: 'Pie' },
+			{ label: 'Pie: Lemon', value: 'p_lemon', innerLabel: 'Lemon', category: 'Pie' }
 		];
 		return <div>
 			<label>{this.props.label}</label>
-			<Select multi={true} placeholder="Select your favourite(s)" buildCustomMenu={testRender} options={ops} onChange={logChange} />
+			<Select multi={true} placeholder="Select your favourite(s)" options={ops} onChange={logChange} >
+				<CustomList />
+			</Select>
 		</div>;
 	}
 });
