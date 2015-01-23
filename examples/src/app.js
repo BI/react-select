@@ -1,6 +1,12 @@
 var React = require('react'),
 	Select = require('react-select'),
-	MoreList = require('../../../react-more-list/more-list.jsx');
+	MoreList = require('../../../react-more-list/more-list.jsx'),
+	RxAcc = require('../../../react-accordion/accordion.jsx');
+
+var Accordion = RxAcc.Accordion,
+	Section = RxAcc.Section,
+	Heading = RxAcc.Heading,
+	Content = RxAcc.Content;
 
 //require('./external/more-list-styles.css');
 
@@ -111,16 +117,23 @@ var CustomList = React.createClass({
 	mixins: [Select.CustomMenuMixin],
 
   buildSections: function(itemMap) {
-  	var sections = itemMap.map(this.buildSection, this);
+  	var sections = [];
 
-  	return section;
+  	for(var sectionTitle in itemMap)
+  	{
+  		var section = this.buildSection(itemMap[sectionTitle], sectionTitle);
+
+  		sections.push(section)
+  	}
+
+  	return sections;
   },
   buildSection: function(sectionItems, sectionTitle) {
   	var moreList = this.buildMoreList(sectionItems);
 
   	return (
   		<Section>
-  			<Heading>{sectionTitle}</Heading>
+  			<Heading>{sectionTitle} ({sectionItems.length})</Heading>
   			<Content>
   				{moreList}
   			</Content>
@@ -146,9 +159,17 @@ var CustomList = React.createClass({
 			return <li className={className} onMouseDown={mouseDown} onMouseEnter={mouseEnter} onMouseLeave={mouseLeave}>{listItem.innerLabel}</li>
   },
 	render: function() {
-		var sectionMap = {};
-		
-		var sections = sectionMap.map(buildSections, this);
+		var itemMap = {};
+
+		this.props.filtered.forEach(function(item) {
+			if(itemMap[item.category] == undefined) {
+				itemMap[item.category] = [];
+			}
+
+			itemMap[item.category].push(item);
+		});
+
+		var sections = this.buildSections(itemMap);
 
 		return (
 			<Accordion>
