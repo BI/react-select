@@ -147,6 +147,50 @@ label {
   border-radius: 10px;
   padding: 1px 5px;
   cursor: pointer;
+  height: 2.5em;
+  line-height: 2.5em;
+  vertical-align: middle;
+}
+.ps-list {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: inline;
+  right: 10px;
+  position: absolute;
+}
+.ps-list-item {
+  padding: 5px;
+  margin: 1px;
+  height: 8px;
+  cursor: pointer;
+  display: inline;
+  background-color: white;
+  color: black;
+}
+.ps-selected {
+  background-color: #888;
+}
+.sub-faction {
+  margin-left: 5px;
+}
+.sub-type {
+  margin-left: 5px;
+}
+.subsection-heading {
+  display: block;
+  margin-top: 3px;
+  height: 1.5em;
+  line-height: 1.5em;
+  border-radius: 1em;
+  padding-left: 5px;
+  vertical-align: middle;
+}
+.sub-faction > .subsection-heading {
+  background-color: #999;
+}
+.sub-type > .subsection-heading {
+  background-color: #CCC;
 }
 /**
  * React Select
