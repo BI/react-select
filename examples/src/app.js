@@ -114,7 +114,6 @@ var RemoteSelectField = React.createClass({
 
 var sortAlpabetically = function(dataSet, sortField)
 {
-	console.log(dataSet);
 	dataSet.sort(function (a, b) {
 	  if (a[sortField] > b[sortField]) {
 	    return 1;
@@ -148,8 +147,7 @@ var CustomList = React.createClass({
   buildSections: function(itemMap) {
   	var sections = [];
 
-  	for(var sectionTitle in itemMap)
-  	{
+  	for(var sectionTitle in itemMap) {
   		var section = this.buildSection(itemMap[sectionTitle], sectionTitle);
 
   		sections.push(section)
@@ -160,7 +158,7 @@ var CustomList = React.createClass({
   buildSection: function(sectionItems, sectionTitle) {
   	var pills = this.buildPillSelect(sectionItems, sectionTitle);
 
-  	var content = this.buildContent(sectionItems);
+  	var content = this.buildContent(sectionItems, sectionTitle);
 
   	return (
   		<Section>
@@ -176,11 +174,12 @@ var CustomList = React.createClass({
 		var onPillSelect = function(id, sortFunction) {
 			var newState = {};
 			newState[sectionTitle] = sortFunction;
+
 			self.setState(newState);
 		};
 
   	return (
-  		<PillSelector onItemClicked={onPillSelect}>
+  		<PillSelector onItemClicked={onPillSelect} callClickOnLoad={true}>
   			<li data={sortAlpabetically}>A-Z</li>
   			<li data={sortReverseAlpabetically}>Z-A</li>
 			</PillSelector>
@@ -212,10 +211,9 @@ var CustomList = React.createClass({
   		{
   			var moreListItems = categoryMapping[faction][type];
 
-		  		console.log(this.state[sectionTitle]);
-		  	if(this.state[sectionTitle])
+		  	if(typeof this.state[sectionTitle] != 'undefined')
 		  	{
-		  		this.state[sectionTitle](moreListItems, "label")
+		  		this.state[sectionTitle](moreListItems, "label");
 		  	}
 
   			var moreList = this.buildMoreList(moreListItems);

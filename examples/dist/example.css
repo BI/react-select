@@ -406,3 +406,6 @@ label {
     -webkit-transform: rotate(1turn);
   }
 }
+.Select-menu {
+  max-height: 400px;
+}
