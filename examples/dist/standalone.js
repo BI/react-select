@@ -1,16 +1,21 @@
 !function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.Select=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function (global){
 var _ = (typeof window !== "undefined" ? window._ : typeof global !== "undefined" ? global._ : null),
-	React = (typeof window !== "undefined" ? window.React : typeof global !== "undefined" ? global.React : null),
+	React = require('react/addons'),
 	Input = (typeof window !== "undefined" ? window.AutosizeInput : typeof global !== "undefined" ? global.AutosizeInput : null),
 	classes = require('classnames'),
-	Value = require('./Value');
+	Value = require('./Value')
+	CustomMenuMixin = require('./CustomMenuMixin.js');
 
 var requestId = 0;
 
 var Select = React.createClass({
 	
 	displayName: 'Select',
+
+	statics: {
+		CustomMenuMixin: CustomMenuMixin
+	},
 
 	propTypes: {
 		value: React.PropTypes.any,                // initial field value
@@ -31,7 +36,7 @@ var Select = React.createClass({
 		filterOption: React.PropTypes.func,        // method to filter a single option: function(option, filterString)
 		filterOptions: React.PropTypes.func,       // method to filter the options array: function([options], filterString, [values])
 		matchPos: React.PropTypes.string,          // (any|start) match the start or entire string when filtering
-		matchProp: React.PropTypes.string          // (any|label|value) which option property to filter on
+		matchProp: React.PropTypes.string         // (any|label|value) which option property to filter on
 	},
 	
 	getDefaultProps: function() {
@@ -476,9 +481,26 @@ var Select = React.createClass({
 		);
 		
 	},
+
+	buildCustomMenu: function() {    
+    if(!this.props.children) {
+    	return;
+    }
+
+  	var child = this.props.children;
+
+  	return React.addons.cloneWithProps(child, {
+	    onSelectItem: this.selectValue,
+	    options: this.props.options,
+	    filtered: this.state.filteredOptions,
+	    inputValue: this.state.inputValue,
+	    focussedItem: this.state.focusedOption,
+	    onFocusItem: this.focusOption,
+	    onUnfocusItem: this.unfocusOption
+  	});
+	},
 	
 	render: function() {
-		
 		var selectClass = classes('Select', this.props.className, {
 			'is-multi': this.props.multi,
 			'is-open': this.state.isOpen,
@@ -502,10 +524,13 @@ var Select = React.createClass({
 		if (!this.state.inputValue && (!this.props.multi || !value.length)) {
 			value.push(React.createElement("div", {className: "Select-placeholder", key: "placeholder"}, this.state.placeholder));
 		}
-		
+
 		var loading = this.state.isLoading ? React.createElement("span", {className: "Select-loading", "aria-hidden": "true"}) : null;
 		var clear = this.props.clearable && this.state.value ? React.createElement("span", {className: "Select-clear", title: this.props.multi ? this.props.clearAllText : this.props.clearValueText, "aria-label": this.props.multi ? this.props.clearAllText : this.props.clearValueText, onMouseDown: this.clearValue, onClick: this.clearValue, dangerouslySetInnerHTML: { __html: '&times;'}}) : null;
-		var menu = this.state.isOpen ? React.createElement("div", {ref: "menu", className: "Select-menu"}, this.buildMenu()) : null;
+		
+		//var builtMenu = this.props.buildCustomMenu ? this.props.buildCustomMenu(this.selectValue, this.state.filteredOptions, this.state.focusedOption, this.focusOption, this.unfocusOption) : this.buildMenu();
+		var builtMenu = this.props.children ? this.buildCustomMenu() : this.buildMenu();
+		var menu = this.state.isOpen ? React.createElement("div", {ref: "menu", className: "Select-menu"}, builtMenu) : null;
 		
 		return (
 			React.createElement("div", {ref: "wrapper", className: selectClass}, 
@@ -528,7 +553,7 @@ var Select = React.createClass({
 module.exports = Select;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./Value":3,"classnames":2}],2:[function(require,module,exports){
+},{"./CustomMenuMixin.js":3,"./Value":4,"classnames":2,"react/addons":undefined}],2:[function(require,module,exports){
 function classnames() {
 	var args = arguments, classes = [];
 	for (var i = 0; i < args.length; i++) {
@@ -546,6 +571,46 @@ function classnames() {
 module.exports = classnames;
 
 },{}],3:[function(require,module,exports){
+(function (global){
+var React = (typeof window !== "undefined" ? window.React : typeof global !== "undefined" ? global.React : null);
+
+var CustomMenuMixin = {
+  propTypes: {
+    onSelectItem: React.PropTypes.func,
+    options: React.PropTypes.arrayOf(React.PropTypes.object),
+    filtered: React.PropTypes.arrayOf(React.PropTypes.object),
+    inputValue: React.PropTypes.string,
+    focussedItem: React.PropTypes.object,
+    onFocusItem: React.PropTypes.func,
+    onUnfocusItem: React.PropTypes.func
+  },
+
+  defaultProps: {
+    onSelectItem: function(item) {},
+    options: [],
+    filtered: [],
+    inputValue: null,
+    focussedItem: null,
+    onFocusItem: function(item) {},
+    onUnfocusItem: function(item) {}
+  },
+
+  selectItem: function(item) {
+    this.props.onSelectItem(item);
+  },
+
+  focusItem: function(item) {
+    this.props.onFocusItem(item);
+  },
+
+  unfocusItem: function(item) {
+    this.props.onUnfocusItem(item);
+  }
+};
+
+module.exports = CustomMenuMixin;
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],4:[function(require,module,exports){
 (function (global){
 var _ = (typeof window !== "undefined" ? window._ : typeof global !== "undefined" ? global._ : null),
 	React = (typeof window !== "undefined" ? window.React : typeof global !== "undefined" ? global.React : null),

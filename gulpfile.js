@@ -31,6 +31,7 @@ var COMPONENT_NAME = 'Select';
 
 var DEPENDENCIES = [
 	'react',
+	'react/addons',
 	'react-input-autosize',
 	'underscore'
 ];

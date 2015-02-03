@@ -126,8 +126,117 @@ label {
 	margin-top: 15px;
 }
 
+// More List
+.ml-list {
+    list-style-type: none;
+    padding: 0px;
+    margin: 0px;
+}
+
+.ml-expander {
+    background-color: #DDD;
+    font-style: italic;
+    cursor: pointer;
+
+	&:hover {
+		background-color: #DDF;
+	}
+}
+
+.ml-count {
+    background-color: #BBB;
+    padding: 0px 5px;
+    border-radius: 1em;
+    font-style: normal;
+    font-size: 14px;
+    
+}
+
+.ml-list-item {
+	box-sizing: border-box;
+	color: @select-option-color;
+	cursor: pointer;
+	display: block;
+	padding: @select-padding-vertical @select-padding-horizontal;
+
+	&:last-child {
+		.border-bottom-radius( @select-input-border-radius );
+	}
+	
+	&.is-focused {
+		background-color: @select-option-focused-bg;
+		color: @select-option-focused-color;
+	}
+}
+
+.accordion-heading {
+	border: 1px white solid;
+	background-color: #222;
+	color: white;
+	border-radius: 10px;
+	padding: 1px 5px;
+    cursor: pointer;
+    height: 2.5em;
+    line-height: 2.5em;
+    vertical-align: middle;
+}
+
+.ps-list {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: inline;
+    right: 10px;
+    position: absolute;
+}
+
+.ps-list-item {
+    padding: 5px;
+    margin: 1px;
+    height: 8px;
+    cursor: pointer;
+    display: inline;
+    background-color: white;
+    color: black;
+}
+
+.ps-selected {
+    background-color: #888;
+}
+
+.sub-faction {
+	margin-left: 5px;
+}
+
+.sub-type {
+	margin-left: 5px;
+}
+
+.subsection-heading {
+	display: block;
+	margin-top: 3px;
+	height: 1.5em;
+	line-height: 1.5em;
+	border-radius: 1em;
+    padding-left: 5px;
+    vertical-align: middle;
+}
+
+
+.sub-faction > .subsection-heading {
+	background-color: #999;
+}
+
+.sub-type > .subsection-heading {
+	background-color: #CCC;
+}
+
 
 // 
 // Select Control
 // ------------------------------
 @import "../../less/default.less";
+
+.Select-menu {
+    max-height: 300px;
+}
