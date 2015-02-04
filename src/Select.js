@@ -451,8 +451,16 @@ var Select = React.createClass({
 	},
 
   swapFocus: function (list, oldFocusIndex, newFocusIndex) {
-    if(!list || (!newFocusIndex && newFocusIndex !== 0) || oldFocusIndex === newFocusIndex) {
+    if(!list) {
       return;
+    }
+
+    if(!list[oldFocusIndex] || !list[newFocusIndex]) {
+    	return;
+    }
+
+    if((!newFocusIndex && newFocusIndex !== 0) || oldFocusIndex === newFocusIndex) {
+    	return;
     }
 
     var oldFocusReplacement = React.addons.cloneWithProps(

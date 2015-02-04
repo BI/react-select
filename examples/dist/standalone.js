@@ -451,12 +451,63 @@ var Select = React.createClass({
 			});
 		}
 	},
-	
-	buildMenu: function() {
-		
-		var focusedValue = this.state.focusedOption ? this.state.focusedOption.value : null;
-		
-		var ops = _.map(this.state.filteredOptions, function(op) {
+
+  swapFocus: function (list, oldFocusIndex, newFocusIndex) {
+    if(!list) {
+      return;
+    }
+
+    if(!list[oldFocusIndex] || !list[newFocusIndex]) {
+    	return;
+    }
+
+    if((!newFocusIndex && newFocusIndex !== 0) || oldFocusIndex === newFocusIndex) {
+    	return;
+    }
+
+    var oldFocusReplacement = React.addons.cloneWithProps(
+      list[oldFocusIndex],
+      {
+        key: list[oldFocusIndex].key,
+        ref: null
+      }
+    );
+
+    var newFocusReplacement = React.addons.cloneWithProps(
+      list[newFocusIndex],
+      {
+        key: list[newFocusIndex].key,
+        ref: "focused"
+      }
+    );
+
+    //cloneWithProps appends classes, but does not replace them, which is what I want here
+    oldFocusReplacement.props.className = "Select-option";
+    newFocusReplacement.props.className = "Select-option is-focused";
+
+    this.cachedFocusedItemIndex = newFocusIndex;
+
+    this.cachedMenu.splice(oldFocusIndex, 1, oldFocusReplacement);
+    this.cachedMenu.splice(newFocusIndex, 1, newFocusReplacement);
+  },
+
+  cachedFocusedItemIndex: 0,
+  cachedListItemsIndexLookup: {},
+  cachedMenu: [],
+  cachedFiltered: [],
+
+  buildMenu: function () {
+    var focusedValue = this.state.focusedOption ? this.state.focusedOption.value : null;
+
+    if(this.cachedFiltered == this.state.filteredOptions)
+    {
+      this.swapFocus(this.cachedMenu, this.cachedFocusedItemIndex, this.cachedListItemsIndexLookup[focusedValue]);
+      return this.cachedMenu;
+    }
+
+    this.cachedListItemsIndexLookup = {};
+
+		var ops = _.map(this.state.filteredOptions, function(op, index) {
 			var isFocused = focusedValue === op.value;
 			
 			var optionClass = classes({
@@ -469,6 +520,13 @@ var Select = React.createClass({
 			var mouseEnter = this.focusOption.bind(this, op),
 				mouseLeave = this.unfocusOption.bind(this, op),
 				mouseDown = this.selectValue.bind(this, op);
+
+      this.cachedListItemsIndexLookup[op.value] = index;
+
+      if(isFocused)
+      {
+        this.cachedFocusedItem = index;
+      }
 			
 			return React.createElement("div", {ref: ref, key: 'option-' + op.value, className: optionClass, onMouseEnter: mouseEnter, onMouseLeave: mouseLeave, onMouseDown: mouseDown, onClick: mouseDown}, op.label);
 			
@@ -530,6 +588,10 @@ var Select = React.createClass({
 		
 		//var builtMenu = this.props.buildCustomMenu ? this.props.buildCustomMenu(this.selectValue, this.state.filteredOptions, this.state.focusedOption, this.focusOption, this.unfocusOption) : this.buildMenu();
 		var builtMenu = this.props.children ? this.buildCustomMenu() : this.buildMenu();
+
+    this.cachedFiltered = this.state.filteredOptions;
+    this.cachedMenu = builtMenu;
+
 		var menu = this.state.isOpen ? React.createElement("div", {ref: "menu", className: "Select-menu"}, builtMenu) : null;
 		
 		return (
