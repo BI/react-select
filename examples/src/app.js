@@ -1,5 +1,6 @@
 var React = require('react'),
   Select = require('react-select');
+  AccessibleSelect = Select.accessible;
 
 var STATES = require('./data/states');
 
@@ -129,6 +130,19 @@ var MultiSelectField = React.createClass({
   }
 });
 
+var AccessibleSelectField = React.createClass({
+  render: function() {
+    var ops = [
+      { label: 'Chocolate', value: 'chocolate' },
+      { label: 'Vanilla', value: 'vanilla' },
+      { label: 'Strawberry', value: 'strawberry' }
+    ];
+    return <div>
+      <label>{this.props.label}</label>
+      <AccessibleSelect multi={true} placeholder="Select..." options={ops} className="accessible-example" />
+    </div>;
+  }
+});
 
 React.render(
   <div>
@@ -136,6 +150,7 @@ React.render(
     <StatesField label="States (non-searchable):" searchable={false} />
     <MultiSelectField label="Multiselect:"/>
     <RemoteSelectField label="Remote Options:"/>
+    <AccessibleSelectField label="Accessible Example" />
   </div>,
   document.getElementById('example')
 );
