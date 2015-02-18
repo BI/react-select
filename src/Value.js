@@ -16,8 +16,8 @@ var Option = React.createClass({
 	
 	render: function() {
 		return (
-			<div className="Select-item">
-				<span className="Select-item-icon" onMouseDown={this.blockEvent} onClick={this.props.onRemove} onTouchEnd={this.props.onRemove}>&times;</span>
+			<div className="Select-item" role="button" onClick={this.props.onRemove} aria-label={"Remove " + this.props.label}>
+				<span  className="Select-item-icon" onMouseDown={this.blockEvent} onClick={this.props.onRemove} onTouchEnd={this.props.onRemove}>&times;</span>
 				<span className="Select-item-label">{this.props.label}</span>
 			</div>
 		);

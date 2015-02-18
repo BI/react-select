@@ -7,9 +7,9 @@ var _ = require('underscore'),
 
 var requestId = 0;
 
-var Select = React.createClass({
+Select = React.createClass({
 	
-	displayName: 'Select',
+	displayName: 'AccessibleSelect',
 
 	statics: {
 		CustomMenuMixin: CustomMenuMixin
@@ -214,11 +214,15 @@ var Select = React.createClass({
 	handleMouseDown: function(event) {
 		// if the event was triggered by a mousedown and not the primary
 		// button, ignore it.
-		if (event.type == 'mousedown' && event.button !== 0) {
+		if (event && event.type == 'mousedown' && event.button !== 0) {
 			return;
 		}
 		event.stopPropagation();
 		event.preventDefault();
+		this.handleMouseDownImplementation();
+		
+	},
+	handleMouseDownImplementation: function() {
 		if (this.state.isFocused) {
 			this.setState({
 				isOpen: true
@@ -248,7 +252,6 @@ var Select = React.createClass({
 	},
 	
 	handleKeyDown: function(event) {
-		
 		switch (event.keyCode) {
 			
 			case 8: // backspace
@@ -284,10 +287,20 @@ var Select = React.createClass({
 			case 40: // down
 				this.focusNextOption();
 			break;
+
+			case 32: //space to open drop down
+				if(this.state.isOpen !== true) {
+					this.handleMouseDownImplementation();
+					this.setState({isOpen: true})
+				}
+				else
+					return;
+			break;
 			
 			default: return;
 		}
 		
+		//prevent default action of whatever key was pressed
 		event.preventDefault();
 		
 	},
@@ -520,13 +533,14 @@ var Select = React.createClass({
 				mouseDown = this.selectValue.bind(this, op);
 
       this.cachedListItemsIndexLookup[op.value] = index;
-
+      var checkMark = "";
       if(isFocused)
       {
         this.cachedFocusedItem = index;
+        checkMark = " Selected";
       }
 			
-			return <div ref={ref} key={'option-' + op.value} className={optionClass} onMouseEnter={mouseEnter} onMouseLeave={mouseLeave} onMouseDown={mouseDown} onClick={mouseDown}>{op.label}</div>;
+			return <a role="listitem" aria-label={op.label + checkMark} ref={ref} key={'option-' + op.value} className={optionClass} onMouseEnter={mouseEnter} onMouseLeave={mouseLeave} onMouseDown={mouseDown} onClick={mouseDown}>{op.label}</a>;
 			
 		}, this);
 		
@@ -578,36 +592,51 @@ var Select = React.createClass({
 		}
 		
 		if (!this.state.inputValue && (!this.props.multi || !value.length)) {
-			value.push(<div className="Select-placeholder" key="placeholder">{this.state.placeholder}</div>);
+			value.push(<div aria-hidden="true" className="Select-placeholder" key="placeholder">{this.state.placeholder}</div>);
 		}
 
 		var loading = this.state.isLoading ? <span className="Select-loading" aria-hidden="true" /> : null;
-		var clear = this.props.clearable && this.state.value ? <span className="Select-clear" title={this.props.multi ? this.props.clearAllText : this.props.clearValueText} aria-label={this.props.multi ? this.props.clearAllText : this.props.clearValueText} onMouseDown={this.clearValue} onClick={this.clearValue} dangerouslySetInnerHTML={{ __html: '&times;' }} /> : null;
+		var clear = this.props.clearable && this.state.value ? <span role="button" className="Select-clear" title={this.props.multi ? this.props.clearAllText : this.props.clearValueText} aria-label={this.props.multi ? this.props.clearAllText : this.props.clearValueText} onMouseDown={this.clearValue} onClick={this.clearValue} dangerouslySetInnerHTML={{ __html: '&times;' }} /> : null;
 		
-		//var builtMenu = this.props.buildCustomMenu ? this.props.buildCustomMenu(this.selectValue, this.state.filteredOptions, this.state.focusedOption, this.focusOption, this.unfocusOption) : this.buildMenu();
-		var builtMenu = this.props.children ? this.buildCustomMenu() : this.buildMenu();
+		var builtMenu = this.props.buildCustomMenu ? this.props.buildCustomMenu(this.selectValue, this.state.filteredOptions, this.state.focusedOption, this.focusOption, this.unfocusOption) : this.buildMenu();
+		// var builtMenu = this.props.children ? this.buildCustomMenu() : this.buildMenu();
 
     this.cachedFiltered = this.state.filteredOptions;
     this.cachedMenu = builtMenu;
 
-		var menu = this.state.isOpen ? <div ref="menu" className="Select-menu">{builtMenu}</div> : null;
-		
+		var menu = this.state.isOpen ? <div id="Select-menu" ref="menu" className="Select-menu">{builtMenu}</div> : null;
+		// var menu = 1 ? <ul id="Select-menu" ref="menu" className="Select-menu">{builtMenu}</ul> : null;
+
 		return (
 			<div ref="wrapper" className={selectClass}>
 				<input type="hidden" ref="value" name={this.props.name} value={this.state.value} />
+				
 				<div className="Select-control" ref="control" onKeyDown={this.handleKeyDown} onMouseDown={this.handleMouseDown} onTouchEnd={this.handleMouseDown}>
 					{value}
-					<Input className="Select-input" tabIndex={this.props.tabIndex} ref="input" value={this.state.inputValue} onFocus={this.handleInputFocus} onBlur={this.handleInputBlur} onChange={this.handleInputChange} minWidth="5" />
+					<Input 
+						aria-label={"Currently " + this.state.filteredOptions.length + " options are available. Press spacebar to open select options or start typing for options to be filtered."}
+						className="Select-input" 
+						tabIndex={this.props.tabIndex} ref="input" 
+						value={this.state.inputValue} 
+						onFocus={this.handleInputFocus} 
+						onBlur={this.handleInputBlur} 
+						onChange={this.handleInputChange} 
+						minWidth="5" />
 					<span className="Select-arrow" />
 					{loading}
 					{clear}
+					
 				</div>
+				<div id="alert-options" role="alert" >
+				
 				{menu}
+				</div>
 			</div>
 		);
 		
 	}
 	
 });
+
 
 module.exports = Select;

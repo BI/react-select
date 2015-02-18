@@ -129,7 +129,6 @@ var MultiSelectField = React.createClass({
   }
 });
 
-
 React.render(
   <div>
     <StatesField />
