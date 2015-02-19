@@ -682,6 +682,7 @@ var Select = React.createClass({
       tabIndex: this.props.tabIndex || 0,
       onFocus: this.handleInputFocus,
       onBlur: this.handleInputBlur };
+
     var input;
 
     if (this.props.searchable && !this.props.disabled) {
@@ -706,6 +707,7 @@ var Select = React.createClass({
       React.createElement(
         "div",
         { className: "Select-control", ref: "control", onKeyDown: this.handleKeyDown, onMouseDown: this.handleMouseDown, onTouchEnd: this.handleMouseDown },
+        inputGuide,
         value,
         input,
         React.createElement("span", { className: "Select-arrow" }),
@@ -715,7 +717,7 @@ var Select = React.createClass({
       menu,
       React.createElement(
         "div",
-        { tabIndex: "-999", style: hideVisuallyStyles, id: "alert-options", role: "alert", "aria-label": "End of select" },
+        { tabIndex: "-1", style: hideVisuallyStyles, id: "alert-options", role: "alert", "aria-label": "End of select" },
         this.state.alertMessage
       )
     );

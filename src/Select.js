@@ -697,6 +697,7 @@ var Select = React.createClass({
 			onFocus: this.handleInputFocus,
 			onBlur: this.handleInputBlur,
 		};
+
 		var input;
 
 		if (this.props.searchable && !this.props.disabled) {
@@ -716,7 +717,6 @@ var Select = React.createClass({
 				<div className="Select-control" ref="control" onKeyDown={this.handleKeyDown} onMouseDown={this.handleMouseDown} onTouchEnd={this.handleMouseDown}>
 					{value}
 					{input}
-
 					<span className="Select-arrow" />
 					{loading}
 					{clear}
@@ -724,7 +724,7 @@ var Select = React.createClass({
 				</div>
 
 				{menu}
-				<div tabIndex="-999" style={hideVisuallyStyles} id="alert-options" role="alert" aria-label="End of select">{this.state.alertMessage}</div>
+				<div tabIndex="-1" style={hideVisuallyStyles} id="alert-options" role="alert" aria-label="End of select">{this.state.alertMessage}</div>
 			</div>
 
 
