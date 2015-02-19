@@ -18,6 +18,7 @@ var CountrySelect = React.createClass({
 });
  
 var StatesField = React.createClass({
+
   getDefaultProps: function () {
     return {
       searchable: true,
@@ -59,7 +60,7 @@ var StatesField = React.createClass({
     );
   }
 });
- 
+
 var RemoteSelectField = React.createClass({
   loadOptions: function(input, callback) {
     

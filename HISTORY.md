@@ -1,5 +1,17 @@
 # React-Select
 
+## v0.3.2 / 2015-01-30
+
+* fixed; issue adding undefined values to multiselect, thanks [Tejas Dinkar](https://github.com/gja)
+
+## v0.3.1 / 2015-01-20
+
+* fixed; missing `var` statement
+
+## v0.3.0 / 2015-01-20
+
+* added; node compatible build now available in `/lib`
+
 ## v0.2.14 / 2015-01-07
 
 * added; `searchPromptText` property that is displayed when `asyncOptions` is set and there are (a) no options loaded, and (b) no input entered to search on, thanks [Anton Fedchenko](https://github.com/kompot)
