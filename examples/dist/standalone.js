@@ -334,24 +334,27 @@ Select = React.createClass({
 		// the latest value before setState() has completed.
 		this._optionsFilterString = event.target.value;
 		var that = this; 
+		var filteredOptions = this.filterOptions(this.state.options);
+		var focusedOption = _.contains(filteredOptions, this.state.focusedOption) ? this.state.focusedOption : filteredOptions[0];
+			
 		if (this.props.asyncOptions) {
 			this.setState({
 				isLoading: true,
-				inputValue: event.target.value
+				inputValue: event.target.value,
+				focusedOption: focusedOption,
+				alertMessage: filteredOptions.length + " options available. " + focusedOption.label + " currently focused."
 			});
 			this.loadAsyncOptions(event.target.value, {
 				isLoading: false,
-				isOpen: true,
-				alertMessage: filteredOptions.length + " options available. " + this.state.focusedOption.label + " currently focused."
+				isOpen: true
 			});
 		} else {
-			var filteredOptions = this.filterOptions(this.state.options);
 			this.setState({
 				isOpen: true,
-				alertMessage: filteredOptions.length + " options available. " + this.state.focusedOption.label + " currently focused.",
+				alertMessage: filteredOptions.length + " options available. " + focusedOption.label + " currently focused.",
 				inputValue: event.target.value,
 				filteredOptions: filteredOptions,
-				focusedOption: _.contains(filteredOptions, this.state.focusedOption) ? this.state.focusedOption : filteredOptions[0]
+				focusedOption: focusedOption
 			});
 		}
 		
