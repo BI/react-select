@@ -9,7 +9,7 @@ var requestId = 0;
 
 Select = React.createClass({
 	
-	displayName: 'AccessibleSelect',
+	displayName: 'Select',
 
 	statics: {
 		CustomMenuMixin: CustomMenuMixin
@@ -34,7 +34,8 @@ Select = React.createClass({
 		filterOption: React.PropTypes.func,        // method to filter a single option: function(option, filterString)
 		filterOptions: React.PropTypes.func,       // method to filter the options array: function([options], filterString, [values])
 		matchPos: React.PropTypes.string,          // (any|start) match the start or entire string when filtering
-		matchProp: React.PropTypes.string         // (any|label|value) which option property to filter on
+		matchProp: React.PropTypes.string,         // (any|label|value) which option property to filter on
+		accessibleLabel: React.PropTypes.string
 	},
 	
 	getDefaultProps: function() {
@@ -54,7 +55,8 @@ Select = React.createClass({
 			onChange: undefined,
 			className: undefined,
 			matchPos: 'any',
-			matchProp: 'any'
+			matchProp: 'any',
+			accessibleLabel: "Choose a value"
 		};
 	},
 	
@@ -72,7 +74,8 @@ Select = React.createClass({
 			options: this.props.options,
 			isFocused: false,
 			isOpen: false,
-			isLoading: false
+			isLoading: false,
+			alertMessage: ""
 		};
 	},
 	
@@ -127,6 +130,16 @@ Select = React.createClass({
 
 			this._focusedOptionReveal = false;
 		}
+
+		if(this.state.alertMessage !== "") {
+			var that = this;
+			setTimeout(function() {
+				that.setState({
+					alertMessage: ""
+				});
+			}, 500);
+			
+		}
 	},
 	
 	getStateFromValue: function(value, options) {
@@ -178,6 +191,8 @@ Select = React.createClass({
 	
 	selectValue: function(value) {
 		this[this.props.multi ? 'addValue' : 'setValue'](value);
+		this.setState({alertMessage: value.label + " selected"});
+
 	},
 	
 	addValue: function(value) {
@@ -225,7 +240,8 @@ Select = React.createClass({
 	handleMouseDownImplementation: function() {
 		if (this.state.isFocused) {
 			this.setState({
-				isOpen: true
+				isOpen: true,
+				alertMessage: this.state.filteredOptions.length + " options available. " + this.state.focusedOption.label + " currently focused."
 			});
 		} else {
 			this._openAfterFocus = true;
@@ -234,9 +250,11 @@ Select = React.createClass({
 	},
 	
 	handleInputFocus: function() {
+		var openMenu = this.state.isOpen || this._openAfterFocus
 		this.setState({
 			isFocused: true,
-			isOpen: this.state.isOpen || this._openAfterFocus
+			isOpen: openMenu,
+			alertMessage: (openMenu) ? this.state.filteredOptions.length + " options available. " + this.state.focusedOption.label + " currently focused." : ""
 		});
 		this._openAfterFocus = false;
 	},
@@ -248,7 +266,7 @@ Select = React.createClass({
 				isOpen: false,
 				isFocused: false
 			});
-		}.bind(this), 50);
+		}.bind(this), 500);
 	},
 	
 	handleKeyDown: function(event) {
@@ -291,7 +309,10 @@ Select = React.createClass({
 			case 32: //space to open drop down
 				if(this.state.isOpen !== true) {
 					this.handleMouseDownImplementation();
-					this.setState({isOpen: true})
+					this.setState({
+						isOpen: true,
+						alertMessage: this.state.filteredOptions.length + " options available. " + this.state.focusedOption.label + " currently focused."
+					})
 				}
 				else
 					return;
@@ -304,13 +325,13 @@ Select = React.createClass({
 		event.preventDefault();
 		
 	},
-	
+
+	//This function handles keyboard text input for filtering options
 	handleInputChange: function(event) {
-		
 		// assign an internal variable because we need to use
 		// the latest value before setState() has completed.
 		this._optionsFilterString = event.target.value;
-		
+		var that = this; 
 		if (this.props.asyncOptions) {
 			this.setState({
 				isLoading: true,
@@ -318,12 +339,14 @@ Select = React.createClass({
 			});
 			this.loadAsyncOptions(event.target.value, {
 				isLoading: false,
-				isOpen: true
+				isOpen: true,
+				alertMessage: filteredOptions.length + " options available. " + this.state.focusedOption.label + " currently focused."
 			});
 		} else {
 			var filteredOptions = this.filterOptions(this.state.options);
 			this.setState({
 				isOpen: true,
+				alertMessage: filteredOptions.length + " options available. " + this.state.focusedOption.label + " currently focused.",
 				inputValue: event.target.value,
 				filteredOptions: filteredOptions,
 				focusedOption: _.contains(filteredOptions, this.state.focusedOption) ? this.state.focusedOption : filteredOptions[0]
@@ -418,6 +441,7 @@ Select = React.createClass({
 		if (!this.state.isOpen) {
 			this.setState({
 				isOpen: true,
+				alertMessage: ops.length + " options available. " + this.state.focusedOption.label + " currently focused.",
 				inputValue: '',
 				focusedOption: this.state.focusedOption || ops[dir === 'next' ? 0 : ops.length - 1]
 			});
@@ -450,7 +474,8 @@ Select = React.createClass({
 		}
 		
 		this.setState({
-			focusedOption: focusedOption
+			focusedOption: focusedOption,
+			inputValue: focusedOption.label
 		});
 		
 	},
@@ -607,6 +632,36 @@ Select = React.createClass({
 		var menu = this.state.isOpen ? <div id="Select-menu" ref="menu" className="Select-menu">{builtMenu}</div> : null;
 		// var menu = 1 ? <ul id="Select-menu" ref="menu" className="Select-menu">{builtMenu}</ul> : null;
 
+		var currentSelectionText = this.state.placeholder;
+		//for multi select can't use placeholder for current selection text
+		if(this.props.multi) {
+			
+			var valueList = this.state.values; 
+			if(valueList.length > 1)
+			{
+				currentSelectionText = ""
+				valueList.forEach(function(val, index) {
+					currentSelectionText += String(val.label);
+					if(index < (valueList.length - 1))
+						currentSelectionText += ", ";
+				});
+				currentSelectionText += " currently selected.";
+			}
+			else if(valueList.length === 1) {
+				currentSelectionText = valueList[0].label + " currently selected.";
+			}
+
+			
+		}
+
+		var hideVisuallyStyles = {
+		    position: "absolute",
+		    left: "-999999px",
+		    top: "auto",
+		    overflow: "hidden",
+		    height: "1px",
+		    width: "1px"
+		};
 		return (
 			<div ref="wrapper" className={selectClass}>
 				<input type="hidden" ref="value" name={this.props.name} value={this.state.value} />
@@ -614,7 +669,7 @@ Select = React.createClass({
 				<div className="Select-control" ref="control" onKeyDown={this.handleKeyDown} onMouseDown={this.handleMouseDown} onTouchEnd={this.handleMouseDown}>
 					{value}
 					<Input 
-						aria-label={"Currently " + this.state.filteredOptions.length + " options are available. Press spacebar to open select options or start typing for options to be filtered."}
+						aria-label={currentSelectionText + ", " + this.props.accessibleLabel + ", Combobox. Press down arrow key to open select options or start typing for options to be filtered. Navigate the options using up and down arrow keys. Press enter to select an option."}
 						className="Select-input" 
 						tabIndex={this.props.tabIndex} ref="input" 
 						value={this.state.inputValue} 
@@ -627,11 +682,12 @@ Select = React.createClass({
 					{clear}
 					
 				</div>
-				<div id="alert-options" role="alert" >
-				
+
 				{menu}
-				</div>
+				<div tabIndex="-999" style={hideVisuallyStyles} id="alert-options" role="alert" aria-label="End of select">{this.state.alertMessage}</div>
 			</div>
+
+
 		);
 		
 	}

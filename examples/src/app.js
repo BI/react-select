@@ -49,7 +49,7 @@ var StatesField = React.createClass({
     return (
       <div>
         <label>{this.props.label}</label>
-        <Select options={ops} value={this.state.selectValue} onChange={this.updateValue} searchable={this.props.searchable} />
+        <Select accessibleLabel={this.props.accessibleLabel} options={ops} value={this.state.selectValue} onChange={this.updateValue} searchable={this.props.searchable} />
         <div className="switcher">
           Country:
           <CountrySelect value="AU" selected={this.state.country} onSelect={this.switchCountry}>Australia</CountrySelect>
@@ -106,7 +106,7 @@ var RemoteSelectField = React.createClass({
   render: function() {
     return <div>
       <label>{this.props.label}</label>
-      <Select asyncOptions={this.loadOptions} className="remote-example" />
+      <Select accessibleLabel={this.props.accessibleLabel} asyncOptions={this.loadOptions} className="remote-example" />
     </div>;
   }
 });
@@ -124,7 +124,7 @@ var MultiSelectField = React.createClass({
     ];
     return <div>
       <label>{this.props.label}</label>
-      <Select multi={true} placeholder="Select your favourite(s)" options={ops} onChange={logChange} />
+      <Select accessibleLabel={this.props.accessibleLabel} multi={true} placeholder="Select your favourite(s)" options={ops} onChange={logChange} />
     </div>;
   }
 });
