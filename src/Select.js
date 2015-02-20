@@ -262,15 +262,13 @@ var Select = React.createClass({
 				//alertMessage: this.state.filteredOptions.length + " options available. " + this.state.focusedOption.label + " currently focused."
 			});
 		} else {
-			console.log("not focused")
 			this._openAfterFocus = true;
-			this.getInputNode().focus(); //is this actually needed? Had to manually call handleInputFocus for a keyboard nav fix. 
-			this.handleInputFocus();
+			this.getInputNode().focus(); //is this actually needed? Had to manually set focus state for a keyboard nav fix. 
+			this.setState({isFocused: true});
 		}
 	},
 
 	handleInputFocus: function() {
-		console.log("HANDLE FOCUS");
 		var openMenu = this.state.isOpen || this._openAfterFocus
 		this.setState({
 			isFocused: true,
@@ -287,7 +285,7 @@ var Select = React.createClass({
 				isOpen: false,
 				isFocused: false
 			});
-		}.bind(this), 500);
+		}.bind(this), 50);
 	},
 
 	handleKeyDown: function(event) {
