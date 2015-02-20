@@ -214,6 +214,7 @@ var Select = React.createClass({
 
   removeValue: function (value) {
     this.setValue(_.without(this.state.values, value));
+    this.setState({ alertMessage: value.label + " removed" });
   },
 
   clearValue: function (event) {
@@ -243,7 +244,6 @@ var Select = React.createClass({
   handleMouseDown: function (event) {
     // if the event was triggered by a mousedown and not the primary
     // if (event && event.type == 'mousedown' && event.button !== 0) {
-
     // button, or if the component is disabled, ignore it.
     if (this.props.disabled || event.type == "mousedown" && event.button !== 0) {
       return;
@@ -255,12 +255,13 @@ var Select = React.createClass({
   handleMouseDownImplementation: function () {
     if (this.state.isFocused) {
       this.setState({
-        isOpen: true,
-        alertMessage: this.state.filteredOptions.length + " options available. " + this.state.focusedOption.label + " currently focused."
+        isOpen: true
+        //alertMessage: this.state.filteredOptions.length + " options available. " + this.state.focusedOption.label + " currently focused."
       });
     } else {
       this._openAfterFocus = true;
-      this.getInputNode().focus();
+      this.getInputNode().focus(); //is this actually needed? Had to manually set focus state for a keyboard nav fix.
+      this.setState({ isFocused: true });
     }
   },
 
@@ -281,7 +282,7 @@ var Select = React.createClass({
         isOpen: false,
         isFocused: false
       });
-    }).bind(this), 500);
+    }).bind(this), 50);
   },
 
   handleKeyDown: function (event) {
@@ -308,6 +309,7 @@ var Select = React.createClass({
       case 13:
         // enter
         this.selectFocusedOption();
+
         break;
 
       case 27:
@@ -331,6 +333,7 @@ var Select = React.createClass({
 
       case 32:
         //space to open drop down
+
         if (this.state.isOpen !== true) {
           this.handleMouseDownImplementation();
           this.setState({
@@ -457,6 +460,7 @@ var Select = React.createClass({
     var ops = this.state.filteredOptions;
 
     if (!this.state.isOpen) {
+      this.handleMouseDownImplementation();
       this.setState({
         isOpen: true,
         alertMessage: ops.length + " options available. " + this.state.focusedOption.label + " currently focused.",
@@ -493,7 +497,8 @@ var Select = React.createClass({
 
     this.setState({
       focusedOption: focusedOption,
-      inputValue: focusedOption.label
+      inputValue: focusedOption.label,
+      alertMessage: focusedOption.label + " currently focused. Press enter to select."
     });
   },
 
@@ -605,6 +610,9 @@ var Select = React.createClass({
       onUnfocusItem: this.unfocusOption
     });
   },
+  switchFocus: function () {
+    this.getInputNode().focus();
+  },
 
   render: function () {
     var selectClass = classes("Select", this.props.className, {
@@ -651,8 +659,20 @@ var Select = React.createClass({
       builtMenu
     ) : null;
 
+    var hideVisuallyStyles = {
+      position: "absolute",
+      left: "-999999px",
+      top: "auto",
+      overflow: "hidden",
+      height: "1px",
+      width: "1px"
+    };
+
+    var moveInputFocusForMulti = "";
+    var summaryLabelMainInput,
+        hideMainInput = false;
     var currentSelectionText = this.state.placeholder;
-    //for multi select can't use placeholder for current selection text
+    //handle multi select aria notification order differently because of the remove buttons
     if (this.props.multi) {
       var valueList = this.state.values;
       if (valueList.length > 1) {
@@ -665,37 +685,42 @@ var Select = React.createClass({
       } else if (valueList.length === 1) {
         currentSelectionText = valueList[0].label + " currently selected.";
       }
-    }
 
-    var hideVisuallyStyles = {
-      position: "absolute",
-      left: "-999999px",
-      top: "auto",
-      overflow: "hidden",
-      height: "1px",
-      width: "1px"
-    };
+      moveInputFocusForMulti = React.createElement("input", {
+        style: hideVisuallyStyles,
+        "aria-label": currentSelectionText + ", " + this.props.accessibleLabel + ", Combobox. Press down arrow key to open select options or start typing for options to be filtered. Use up and down arrow keys to navigate options. Press enter to select an option.",
+        onFocus: this.switchFocus, minWidth: "5" });
+      summaryLabelMainInput = "";
+      hideMainInput = true;
+    } else {
+      summaryLabelMainInput = currentSelectionText + ", " + this.props.accessibleLabel + ", Combobox. Press down arrow key to open select options or start typing for options to be filtered. Use up and down arrow keys to navigate options. Press enter to select an option.";
+    }
 
     var commonProps = {
       ref: "input",
       className: "Select-input",
       tabIndex: this.props.tabIndex || 0,
       onFocus: this.handleInputFocus,
-      onBlur: this.handleInputBlur };
+      onBlur: this.handleInputBlur
+    };
 
     var input;
 
     if (this.props.searchable && !this.props.disabled) {
       input = React.createElement(Input, React.__spread({
-        "aria-label": currentSelectionText + ", " + this.props.accessibleLabel + ", Combobox. Press down arrow key to open select options or start typing for options to be filtered. Navigate the options using up and down arrow keys. Press enter to select an option.",
+        "aria-hidden": hideMainInput,
+        "aria-label": summaryLabelMainInput,
         value: this.state.inputValue,
         onChange: this.handleInputChange,
         minWidth: "5"
       }, commonProps));
     } else {
+      var summaryLabelNonSearchable = currentSelectionText + ", " + this.props.accessibleLabel + ", Combobox. Press down arrow key to open select options. Use up and down arrow keys to navigate options. Press enter to select an option. Typing will not filter options, this is a non-searchable combobox.";
       input = React.createElement(
         "div",
-        commonProps,
+        React.__spread({
+          "aria-label": summaryLabelNonSearchable
+        }, commonProps),
         " "
       );
     }
@@ -707,7 +732,7 @@ var Select = React.createClass({
       React.createElement(
         "div",
         { className: "Select-control", ref: "control", onKeyDown: this.handleKeyDown, onMouseDown: this.handleMouseDown, onTouchEnd: this.handleMouseDown },
-        inputGuide,
+        moveInputFocusForMulti,
         value,
         input,
         React.createElement("span", { className: "Select-arrow" }),
