@@ -3,6 +3,7 @@ var browserify = require('browserify'),
 	chalk = require('chalk'),
 	del = require('del'),
 	gulp = require('gulp'),
+	to5 = require('gulp-6to5'),
 	bump = require('gulp-bump'),
 	connect = require('gulp-connect'),
 	deploy = require("gulp-gh-pages"),
@@ -13,7 +14,7 @@ var browserify = require('browserify'),
 	uglify = require('gulp-uglify'),
 	gutil = require('gulp-util'),
 	merge = require('merge-stream'),
-	reactify = require('reactify'),
+	to5ify = require('6to5ify'),
 	source = require('vinyl-source-stream'),
 	watchify = require('watchify');
 
@@ -23,6 +24,7 @@ var browserify = require('browserify'),
  */
 
 var SRC_PATH = 'src';
+var LIB_PATH = 'lib';
 var DIST_PATH = 'dist';
 
 var PACKAGE_FILE = 'Select.js';
@@ -135,11 +137,17 @@ function buildExampleScripts(dev) {
 	
 	return function() {
 		
-		var common = browserify(opts),
-			bundle = browserify(opts).require('./' + SRC_PATH + '/' + PACKAGE_FILE, { expose: PACKAGE_NAME }),
-			example = browserify(opts).exclude(PACKAGE_NAME).add('./' + EXAMPLE_SRC_PATH + '/' + EXAMPLE_APP),
+		var common = browserify(opts)
+				.transform(to5ify),
+			bundle = browserify(opts)
+				.require('./' + SRC_PATH + '/' + PACKAGE_FILE, { expose: PACKAGE_NAME })
+				.transform(to5ify),
+			example = browserify(opts)
+				.exclude(PACKAGE_NAME)
+				.add('./' + EXAMPLE_SRC_PATH + '/' + EXAMPLE_APP)
+				.transform(to5ify),
 			standalone = browserify('./' + SRC_PATH + '/' + PACKAGE_FILE, { standalone: COMPONENT_NAME })
-				.transform(reactify)
+				.transform(to5ify)
 				.transform(shim);
 		
 		DEPENDENCIES.forEach(function(pkg) {
@@ -215,7 +223,22 @@ gulp.task('dev', [
 
 
 /**
- * Build task
+ * Build lib
+ */
+
+gulp.task('prepare:lib', function(done) {
+	del([LIB_PATH], done);
+});
+
+gulp.task('build:lib', ['prepare:lib'], function(done) {
+	return gulp.src(SRC_PATH + '/**/*.js')
+		.pipe(to5())
+		.pipe(gulp.dest(LIB_PATH));
+});
+
+
+/**
+ * Build dist
  */
 
 gulp.task('prepare:dist', function(done) {
@@ -233,7 +256,7 @@ gulp.task('build:scripts', ['prepare:dist'], function() {
 	var standalone = browserify('./' + SRC_PATH + '/' + PACKAGE_FILE, {
 			standalone: COMPONENT_NAME
 		})
-		.transform(reactify)
+		.transform(to5ify)
 		.transform(shim);
 	
 	DEPENDENCIES.forEach(function(pkg) {
@@ -255,7 +278,8 @@ gulp.task('build:scripts', ['prepare:dist'], function() {
 gulp.task('build', [
 	'build:styles',
 	'build:scripts',
-	'build:examples'
+	'build:examples',
+	'build:lib'
 ]);
 
 
