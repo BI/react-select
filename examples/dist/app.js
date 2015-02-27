@@ -146,13 +146,30 @@ var MultiSelectField = React.createClass({
   }
 });
 
+var NonClearableField = React.createClass({
+  displayName: "NonClearableField",
+  render: function () {
+    var ops = [{ label: "Chocolate", value: "chocolate" }, { label: "Vanilla", value: "vanilla" }, { label: "Strawberry", value: "strawberry" }, { label: "Caramel", value: "caramel" }, { label: "Cookies and Cream", value: "cookiescream" }, { label: "Peppermint", value: "peppermint" }];
+    return React.createElement(
+      "div",
+      null,
+      React.createElement(
+        "label",
+        null,
+        this.props.label
+      ),
+      React.createElement(Select, { nullNotAllowed: true, searchable: false, accessibleLabel: this.props.accessibleLabel, placeholder: "Select your favourite", options: ops, onChange: logChange })
+    );
+  }
+});
 React.render(React.createElement(
   "div",
   null,
   React.createElement(StatesField, null),
   React.createElement(StatesField, { label: "States (non-searchable):", searchable: false }),
   React.createElement(MultiSelectField, { label: "Multiselect:" }),
-  React.createElement(RemoteSelectField, { label: "Remote Options:" })
+  React.createElement(RemoteSelectField, { label: "Remote Options:" }),
+  React.createElement(NonClearableField, { label: "Non-clearable (always has a selection): " })
 ), document.getElementById("example"));
 
 },{"./data/states":2,"react":undefined,"react-select":undefined}],2:[function(require,module,exports){

@@ -130,12 +130,29 @@ var MultiSelectField = React.createClass({
   }
 });
 
+var NonClearableField = React.createClass({
+  render: function() {
+    var ops = [
+      { label: 'Chocolate', value: 'chocolate' },
+      { label: 'Vanilla', value: 'vanilla' },
+      { label: 'Strawberry', value: 'strawberry' },
+      { label: 'Caramel', value: 'caramel' },
+      { label: 'Cookies and Cream', value: 'cookiescream' },
+      { label: 'Peppermint', value: 'peppermint' }
+    ];
+    return <div>
+      <label>{this.props.label}</label>
+      <Select nullNotAllowed={true} searchable={false} accessibleLabel={this.props.accessibleLabel} placeholder="Select your favourite" options={ops} onChange={logChange} />
+    </div>;
+  }
+});
 React.render(
   <div>
     <StatesField />
     <StatesField label="States (non-searchable):" searchable={false} />
     <MultiSelectField label="Multiselect:"/>
     <RemoteSelectField label="Remote Options:"/>
+    <NonClearableField label="Non-clearable (always has a selection): "/>
   </div>,
   document.getElementById('example')
 );
