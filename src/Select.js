@@ -264,7 +264,6 @@ var Select = React.createClass({
 		if (this.state.isFocused) {
 			this.setState({
 				isOpen: true
-				//alertMessage: this.state.filteredOptions.length + " options available. " + this.state.focusedOption.label + " currently focused."
 			});
 		} else {
 			this._openAfterFocus = true;
@@ -275,10 +274,12 @@ var Select = React.createClass({
 
 	handleInputFocus: function() {
 		var openMenu = this.state.isOpen || this._openAfterFocus
+		var alertMessage = !(this.state.focusedOption === null || this.state.focusedOption === undefined) ? 
+			this.state.filteredOptions.length + " options available. " + this.state.focusedOption.label + " currently focused." : "";
 		this.setState({
 			isFocused: true,
 			isOpen: openMenu,
-			alertMessage: (openMenu) ? this.state.filteredOptions.length + " options available. " + this.state.focusedOption.label + " currently focused." : ""
+			alertMessage: (openMenu) ? alertMessage : ""
 		});
 		this._openAfterFocus = false;
 	},
@@ -351,13 +352,14 @@ var Select = React.createClass({
 		var that = this; 
 		var filteredOptions = this.filterOptions(this.state.options);
 		var focusedOption = _.contains(filteredOptions, this.state.focusedOption) ? this.state.focusedOption : filteredOptions[0];
-
+		var alertMessage = !(this.state.focusedOption === null || this.state.focusedOption === undefined) ? 
+			filteredOptions.length + " options available. " + this.state.focusedOption.label + " currently focused." : "";
 		if (this.props.asyncOptions) {
 			this.setState({
 				isLoading: true,
 				inputValue: event.target.value,
 				focusedOption: focusedOption,
-				alertMessage: filteredOptions.length + " options available. " + focusedOption.label + " currently focused."
+				alertMessage: alertMessage
 			});
 			this.loadAsyncOptions(event.target.value, {
 				isLoading: false,
@@ -366,7 +368,7 @@ var Select = React.createClass({
 		} else {
 			this.setState({
 				isOpen: true,
-				alertMessage: filteredOptions.length + " options available. " + focusedOption.label + " currently focused.",
+				alertMessage: alertMessage,
 				inputValue: event.target.value,
 				filteredOptions: filteredOptions,
 				focusedOption: focusedOption
@@ -464,12 +466,13 @@ var Select = React.createClass({
 		this._focusedOptionReveal = true;
 
 		var ops = this.state.filteredOptions;
-
+		var alertMessage = !(this.state.focusedOption === null || this.state.focusedOption === undefined) ? 
+			ops.length + " options available. " + this.state.focusedOption.label + " currently focused." : "";
 		if (!this.state.isOpen && !this.props.asyncOptions) {
 			this.handleMouseDownImplementation();
 			this.setState({
 				isOpen: true,
-				alertMessage: ops.length + " options available. " + this.state.focusedOption.label + " currently focused.",
+				alertMessage: alertMessage,
 				inputValue: '',
 				focusedOption: this.state.focusedOption || ops[dir === 'next' ? 0 : ops.length - 1]
 			});
@@ -501,16 +504,17 @@ var Select = React.createClass({
 			}
 		}
 
+		//select is open and navigation options for the next conditions
 		if(this.props.asyncOptions && !this.state.isOpen) {
 			this.handleMouseDownImplementation();
 			this.setState({
 				isOpen: true,
-				alertMessage: ops.length + " options available. " + this.state.focusedOption.label + " currently focused.",
+				alertMessage: alertMessage,
 				inputValue: '',
 				focusedOption: this.state.focusedOption || ops[dir === 'next' ? 0 : ops.length - 1]
 			});
 		}
-		else if(this.props.multi) //multi select
+		else if(this.props.multi) //multi select 
 			this.setState({
 				focusedOption: focusedOption,
 				inputValue: focusedOption.label,
