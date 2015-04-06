@@ -308,8 +308,8 @@ var Select = React.createClass({
         break;
 
       case 13:
-        // enter
-        this.selectFocusedOption();
+        // enter, but only if the menu is open
+        this.state.isOpen && this.selectFocusedOption();
 
         break;
 
