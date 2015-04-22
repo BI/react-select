@@ -687,7 +687,9 @@ var Select = React.createClass({
 
 		var loading = this.state.isLoading ? <span className="Select-loading" aria-hidden="true" /> : null;
 		var clear = !this.props.nullNotAllowed && this.props.clearable && this.state.value && !this.props.disabled ? <span role="button" className="Select-clear" title={this.props.multi ? this.props.clearAllText : this.props.clearValueText} aria-label={this.props.multi ? this.props.clearAllText : this.props.clearValueText} onMouseDown={this.clearValue} onClick={this.clearValue} dangerouslySetInnerHTML={{ __html: '&times;' }} /> : null;
-		var builtMenu = this.props.buildCustomMenu ? this.props.buildCustomMenu(this.selectValue, this.state.filteredOptions, this.state.focusedOption, this.focusOption, this.unfocusOption) : this.buildMenu();
+		
+		var builtMenu = this.props.children ? this.buildCustomMenu() : this.buildMenu();
+		//var builtMenu = this.props.buildCustomMenu ? this.props.buildCustomMenu(this.selectValue, this.state.filteredOptions, this.state.focusedOption, this.focusOption, this.unfocusOption) : this.buildMenu();
 
 	    this.cachedFiltered = this.state.filteredOptions;
 	    this.cachedMenu = builtMenu;
