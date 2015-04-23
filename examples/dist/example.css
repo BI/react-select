@@ -105,93 +105,6 @@ label {
 .form-toolbar {
   margin-top: 15px;
 }
-.ml-list {
-  list-style-type: none;
-  padding: 0px;
-  margin: 0px;
-}
-.ml-expander {
-  background-color: #DDD;
-  font-style: italic;
-  cursor: pointer;
-}
-.ml-expander:hover {
-  background-color: #DDF;
-}
-.ml-count {
-  background-color: #BBB;
-  padding: 0px 5px;
-  border-radius: 1em;
-  font-style: normal;
-  font-size: 14px;
-}
-.ml-list-item {
-  box-sizing: border-box;
-  color: #666666;
-  cursor: pointer;
-  display: block;
-  padding: 8px 10px;
-}
-.ml-list-item:last-child {
-  border-bottom-right-radius: 4px;
-  border-bottom-left-radius: 4px;
-}
-.ml-list-item.is-focused {
-  background-color: #f2f9fc;
-  color: #333333;
-}
-.accordion-heading {
-  border: 1px white solid;
-  background-color: #222;
-  color: white;
-  border-radius: 10px;
-  padding: 1px 5px;
-  cursor: pointer;
-  height: 2.5em;
-  line-height: 2.5em;
-  vertical-align: middle;
-}
-.ps-list {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-  display: inline;
-  right: 10px;
-  position: absolute;
-}
-.ps-list-item {
-  padding: 5px;
-  margin: 1px;
-  height: 8px;
-  cursor: pointer;
-  display: inline;
-  background-color: white;
-  color: black;
-}
-.ps-selected {
-  background-color: #888;
-}
-.sub-faction {
-  margin-left: 5px;
-}
-.sub-type {
-  margin-left: 5px;
-}
-.subsection-heading {
-  display: block;
-  margin-top: 3px;
-  height: 1.5em;
-  line-height: 1.5em;
-  border-radius: 1em;
-  padding-left: 5px;
-  vertical-align: middle;
-}
-.sub-faction > .subsection-heading {
-  background-color: #999;
-}
-.sub-type > .subsection-heading {
-  background-color: #CCC;
-}
 /**
  * React Select
  * ============
@@ -245,6 +158,7 @@ label {
   position: absolute;
   top: 0;
   left: 0;
+  right: -15px;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -272,9 +186,9 @@ label {
   outline: none;
 }
 .Select-loading {
-  -webkit-animation: spin 400ms infinite linear;
-  -o-animation: spin 400ms infinite linear;
-  animation: spin 400ms infinite linear;
+  -webkit-animation: Select-animation-spin 400ms infinite linear;
+  -o-animation: Select-animation-spin 400ms infinite linear;
+  animation: Select-animation-spin 400ms infinite linear;
   width: 16px;
   height: 16px;
   box-sizing: border-box;
@@ -320,7 +234,7 @@ label {
   top: 14px;
   width: 0;
 }
-.Select-menu {
+.Select-menu-outer {
   border-bottom-right-radius: 4px;
   border-bottom-left-radius: 4px;
   background-color: white;
@@ -330,12 +244,15 @@ label {
   box-sizing: border-box;
   margin-top: -1px;
   max-height: 200px;
-  overflow-y: auto;
   position: absolute;
   top: 100%;
   width: 100%;
   z-index: 1000;
   -webkit-overflow-scrolling: touch;
+}
+.Select-menu {
+  max-height: 198px;
+  overflow-y: auto;
 }
 .Select-option {
   box-sizing: border-box;
@@ -388,6 +305,10 @@ label {
   border-top-right-radius: 2px;
   padding: 3px 5px;
 }
+.Select-item-label .Select-item-label__a {
+  color: #0088cc;
+  cursor: pointer;
+}
 .Select-item-icon {
   cursor: pointer;
   border-bottom-left-radius: 2px;
@@ -403,16 +324,13 @@ label {
 .Select-item-icon:active {
   background-color: #c9e6f2;
 }
-@keyframes spin {
+@keyframes Select-animation-spin {
   to {
     transform: rotate(1turn);
   }
 }
-@-webkit-keyframes spin {
+@-webkit-keyframes Select-animation-spin {
   to {
     -webkit-transform: rotate(1turn);
   }
-}
-.Select-menu {
-  max-height: 300px;
 }
