@@ -1,4 +1,4 @@
-var React = require('react');
+var React = require('react/addons');
 
 var Option = React.createClass({
 
@@ -30,7 +30,7 @@ var Option = React.createClass({
 			<div className="Select-item">
 				<span className="Select-item-icon"
 					role="button"
-					aria-label={"Remove" + label}
+					aria-label={'Remove' + label}
 					onMouseDown={this.blockEvent}
 					onClick={this.props.onRemove}
 					onTouchEnd={this.props.onRemove}>&times;</span>

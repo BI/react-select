@@ -1,4 +1,4 @@
-var React = require('react/addons'),
+var React = require('react'),
 	Input = require('react-input-autosize'),
 	classes = require('classnames'),
 	Value = require('./Value'),
@@ -41,7 +41,6 @@ var Select = React.createClass({
 		matchProp: React.PropTypes.string,         // (any|label|value) which option property to filter on
 		accessibleLabel: React.PropTypes.string,   // (aria label for screen reader)
 		nullNotAllowed: React.PropTypes.bool,	   	 // use when the select must always have a value selected
-		matchProp: React.PropTypes.string,         // (any|label|value) which option property to filter on
 		inputProps: React.PropTypes.object,        // custom attributes for the Input (in the Select-control) e.g: {'data-foo': 'bar'}
 
 		/*
@@ -76,7 +75,6 @@ var Select = React.createClass({
 			matchProp: 'any',
 			accessibleLabel: "Choose a value",
 			nullNotAllowed: false,
-			matchProp: 'any',
 			inputProps: {},
 
 			onOptionLabelClick: undefined,
@@ -105,10 +103,16 @@ var Select = React.createClass({
 	componentWillMount: function() {
 		this._optionsCache = {};
 		this._optionsFilterString = '';
-		if(this.props.nullNotAllowed && !this.props.value)
-			this.setState(this.getStateFromValue(this.props.options[0].value));
-		else
-			this.setState(this.getStateFromValue(this.props.value));
+
+		var value = this.props.value;
+
+		if(this.props.nullNotAllowed && !this.props.value) {
+			value = this.props.options[0].value;
+		}
+
+		var state = this.getStateFromValue(value)
+		
+		this.setState(state);
 
 		if (this.props.asyncOptions && this.props.autoload) {
 			this.autoloadAsyncOptions();
@@ -283,7 +287,7 @@ var Select = React.createClass({
 			return value !== valueToRemove;
 		}));
 
-		this.setState({alertMessage: value.label + " removed"});
+		this.setState({alertMessage: valueToRemove.label + " removed"});
 	},
 
 	clearValue: function(event) {
@@ -393,9 +397,11 @@ var Select = React.createClass({
 			break;
 
 			case 13: // enter, but only if the menu is open 
-				if(this.state.isOpen) {
-					this.selectFocusedOption();
+				if(!this.state.isOpen) {
+					return;
 				}
+				
+				this.selectFocusedOption();
 			break;
 
 			case 27: // escape
@@ -437,11 +443,11 @@ var Select = React.createClass({
 		// assign an internal variable because we need to use
 		// the latest value before setState() has completed.
 		this._optionsFilterString = event.target.value;
-		var that = this; 
+
 		var filteredOptions = this.filterOptions(this.state.options);
-		var focusedOption = _.contains(filteredOptions, this.state.focusedOption) ? this.state.focusedOption : filteredOptions[0];
 		var alertMessage = !(this.state.focusedOption === null || this.state.focusedOption === undefined) ? 
 			filteredOptions.length + " options available. " + this.state.focusedOption.label + " currently focused." : "";
+
 		if (this.props.asyncOptions) {
 			this.setState({
 				isLoading: true,
@@ -534,23 +540,25 @@ var Select = React.createClass({
 		var exclude = (values || this.state.values).map(function(i) {
 			return i.value;
 		});
+
 		if (this.props.filterOptions) {
 			return this.props.filterOptions.call(this, options, filterValue, exclude);
-		} else {
-			var filterOption = function(op) {
-				if (this.props.multi && exclude.indexOf(op.value) > -1) return false;
-				if (this.props.filterOption) return this.props.filterOption.call(this, op, filterValue);
-				var valueTest = String(op.value), labelTest = String(op.label);
-				return !filterValue || (this.props.matchPos === 'start') ? (
-					(this.props.matchProp !== 'label' && valueTest.toLowerCase().substr(0, filterValue.length) === filterValue) ||
-					(this.props.matchProp !== 'value' && labelTest.toLowerCase().substr(0, filterValue.length) === filterValue)
-				) : (
-					(this.props.matchProp !== 'label' && valueTest.toLowerCase().indexOf(filterValue.toLowerCase()) >= 0) ||
-					(this.props.matchProp !== 'value' && labelTest.toLowerCase().indexOf(filterValue.toLowerCase()) >= 0)
-				);
-			};
-			return (options || []).filter(filterOption, this);
 		}
+
+		var filterOption = function(op) {
+			if (this.props.multi && exclude.indexOf(op.value) > -1) return false;
+			if (this.props.filterOption) return this.props.filterOption.call(this, op, filterValue);
+			var valueTest = String(op.value), labelTest = String(op.label);
+			return !filterValue || (this.props.matchPos === 'start') ? (
+				(this.props.matchProp !== 'label' && valueTest.toLowerCase().substr(0, filterValue.length) === filterValue) ||
+				(this.props.matchProp !== 'value' && labelTest.toLowerCase().substr(0, filterValue.length) === filterValue)
+			) : (
+				(this.props.matchProp !== 'label' && valueTest.toLowerCase().indexOf(filterValue.toLowerCase()) >= 0) ||
+				(this.props.matchProp !== 'value' && labelTest.toLowerCase().indexOf(filterValue.toLowerCase()) >= 0)
+			);
+		};
+
+		return (options || []).filter(filterOption, this);
 	},
 
 	selectFocusedOption: function() {
@@ -577,6 +585,7 @@ var Select = React.createClass({
 		var ops = this.state.filteredOptions;
 		var alertMessage = !(this.state.focusedOption === null || this.state.focusedOption === undefined) ? 
 			ops.length + " options available. " + this.state.focusedOption.label + " currently focused." : "";
+
 		if (!this.state.isOpen && !this.props.asyncOptions) {
 			this.handleMouseDownImplementation();
 			this.setState({
@@ -668,25 +677,23 @@ var Select = React.createClass({
     	return;
     }
 
-    var oldFocusReplacement = React.addons.cloneWithProps(
+    var oldFocusReplacement = React.cloneElement(
       list[oldFocusIndex],
       {
         key: list[oldFocusIndex].key,
-        ref: null
+        ref: null,
+        className: "Select-option",
       }
     );
 
-    var newFocusReplacement = React.addons.cloneWithProps(
+    var newFocusReplacement = React.cloneElement(
       list[newFocusIndex],
       {
         key: list[newFocusIndex].key,
-        ref: "focused"
+        ref: "focused",
+        className: "Select-option is-focused",
       }
     );
-
-    //cloneWithProps appends classes, but does not replace them, which is what I want here
-    oldFocusReplacement.props.className = "Select-option";
-    newFocusReplacement.props.className = "Select-option is-focused";
 
     this.cachedFocusedItemIndex = newFocusIndex;
 
@@ -694,6 +701,7 @@ var Select = React.createClass({
     this.cachedMenu.splice(newFocusIndex, 1, newFocusReplacement);
   },
 
+  //Needed to cache item focusing
   cachedFocusedItemIndex: 0,
   cachedListItemsIndexLookup: {},
   cachedMenu: [],
@@ -710,13 +718,11 @@ var Select = React.createClass({
 
     this.cachedListItemsIndexLookup = {};
 
-		var ops = _.map(this.state.filteredOptions, function(op, index) {
-
 		if(this.state.filteredOptions.length > 0) {
 			focusedValue = focusedValue == null ? this.state.filteredOptions[0] : focusedValue;
 		}
 
-		var ops = Object.keys(this.state.filteredOptions).map(function(key) {
+		var ops = Object.keys(this.state.filteredOptions).map(function(key, index) {
 			var op = this.state.filteredOptions[key];
 			var isFocused = focusedValue === op.value;
 
@@ -778,7 +784,7 @@ var Select = React.createClass({
 
 	  	var child = this.props.children;
 
-	  	return React.addons.cloneWithProps(child, {
+	  	return React.cloneElement(child, {
 		    onSelectItem: this.selectValue,
 		    options: this.props.options,
 		    filtered: this.state.filteredOptions,
@@ -788,6 +794,7 @@ var Select = React.createClass({
 		    onUnfocusItem: this.unfocusOption
 	  	});
 	},
+
 	switchFocus: function() {
 		this.getInputNode().focus();
 	},
@@ -813,11 +820,13 @@ var Select = React.createClass({
 					onOptionLabelClick: this.handleOptionLabelClick.bind(this, val),
 					onRemove: this.removeValue.bind(this, val)
 				};
+
 				for (var key in val) {
 					if (val.hasOwnProperty(key)) {
 						props[key] = val[key];
 					}
 				}
+
 				value.push(<Value {...props} />);
 			}, this);
 		}
@@ -834,7 +843,22 @@ var Select = React.createClass({
     this.cachedFiltered = this.state.filteredOptions;
     this.cachedMenu = builtMenu;
 
-		var menu = this.state.isOpen ? <div id="Select-menu" ref="menu" className="Select-menu">{builtMenu}</div> : null;
+		var menu;
+		var menuProps;
+		if (this.state.isOpen) {
+			menuProps = {
+				ref: 'menu',
+				className: 'Select-menu'
+			};
+			if (this.props.multi) {
+				menuProps.onMouseDown = this.handleMouseDown;
+			}
+			menu = (
+				<div ref="selectMenuContainer" className="Select-menu-outer">
+					<div {...menuProps}>{builtMenu}</div>
+				</div>
+			);
+		}
 
 		var hideVisuallyStyles = {
 		    position: "absolute",
@@ -874,23 +898,6 @@ var Select = React.createClass({
 		}
 		else {
 			summaryLabelMainInput = currentSelectionText + ", " + this.props.accessibleLabel + ", Combobox. Press down arrow key to open select options or start typing for options to be filtered. Use up and down arrow keys to navigate options. Press enter to select an option.";
-		}
-
-		var menu;
-		var menuProps;
-		if (this.state.isOpen) {
-			menuProps = {
-				ref: 'menu',
-				className: 'Select-menu'
-			};
-			if (this.props.multi) {
-				menuProps.onMouseDown = this.handleMouseDown;
-			}
-			menu = (
-				<div ref="selectMenuContainer" className="Select-menu-outer">
-					<div {...menuProps}>{this.buildMenu()}</div>
-				</div>
-			);
 		}
 
 		var input;
